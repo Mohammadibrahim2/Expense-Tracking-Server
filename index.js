@@ -37,7 +37,7 @@ async function run() {
         app.post('/api/monthlyLimit', async (req, res) => {
 
             const { monthlyLimit } = req.body;
-          
+
             const newMonthlyLimit = parseFloat(monthlyLimit);
 
             if (isNaN(newMonthlyLimit)) {
@@ -80,25 +80,25 @@ async function run() {
             try {
                 // Fetch the first document from the collection
                 const existingData = await monthlyLimitCollection.findOne({});
-        
+
                 if (existingData) {
                     // console.log("Raw data from DB:", existingData);  
-                    
-                   
+
+
                     let monthlyLimit = parseFloat(existingData.monthlyLimit);
                     let value = parseFloat(existingData.value);
-        
+
                     // Check if the `monthlyLimit` or `value` are invalid (NaN)
                     if (isNaN(monthlyLimit)) {
                         console.log("Invalid monthlyLimit:", existingData.monthlyLimit);
-                        monthlyLimit = 0;  
+                        monthlyLimit = 0;
                     }
                     if (isNaN(value)) {
                         // console.log("Invalid value:", existingData.value);
-                        value = 0;  
+                        value = 0;
                     }
-        
-                    
+
+
                     res.status(200).send({
                         _id: existingData._id,
                         monthlyLimit: monthlyLimit,
@@ -113,7 +113,7 @@ async function run() {
                 res.status(500).send({ error: "An error occurred while fetching the data." });
             }
         });
-        
+
 
         //create expenses:-
 
@@ -188,7 +188,7 @@ async function run() {
         })
         //tasks delete:-
 
-        app.delete('/tasks/:id', async (req, res) => {
+        app.delete('/api/expense/:id',async(req,res)=> {
             const id = req.params.id
 
 
@@ -225,7 +225,7 @@ async function run() {
         //create category and set it's limit
         app.post('/api/category', async (req, res) => {
             const { limit, category } = req.body;
-            const newcatgory={limit,category}
+            const newcatgory = { limit, category }
             console.log(newcatgory);
 
             const result = await categoryCollection.insertOne(newcatgory);
