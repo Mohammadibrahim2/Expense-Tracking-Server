@@ -35,38 +35,91 @@ async function run() {
 
         //set monthly limits:
         app.post('/api/monthlyLimit', async (req, res) => {
-            const monthlyLimit = req.body;
-            console.log(monthlyLimit);
-            const query={}
-            const monthlylimitedData = await monthlyLimitCollection.find(query).toArray();
-            if(monthlylimitedData.length>0){
-                res.send({
-                    message:"allready set the data!"
-                })
+
+            const { monthlyLimit } = req.body;
+          
+            const newMonthlyLimit = parseFloat(monthlyLimit);
+
+            if (isNaN(newMonthlyLimit)) {
+                return res.status(400).send({ error: "Invalid monthly limit value. Please provide a valid number." });
             }
-            else{
-             
-                const result = await monthlyLimitCollection.insertOne(monthlyLimit);
+
+            // Find the existing data
+            const existingData = await monthlyLimitCollection.findOne({});
+
+            if (existingData) {
+                // Convert the stored `monthlyLimit` to a number
+                const existingLimit = parseFloat(existingData.monthlyLimit || 0);
+
+                if (isNaN(existingLimit)) {
+                    return res.status(400).send({ error: "Stored monthly limit value is not a valid number." });
+                }
+
+                const updatedMonthlyLimit = existingLimit + newMonthlyLimit;
+
+                // Update the document in the database
+                await monthlyLimitCollection.updateOne(
+                    {},
+                    { $set: { monthlyLimit: updatedMonthlyLimit } }
+                );
+
                 res.status(200).send({
+                    success: `Successfully updated monthly limit to ${updatedMonthlyLimit}!`
+                });
+            } else {
 
-                    success: "successfully added a monthly limit data!"
-    
-                })
+                await monthlyLimitCollection.insertOne({ monthlyLimit: newMonthlyLimit });
+
+                res.status(200).send({
+                    success: `Successfully added monthly limit data: ${newMonthlyLimit}`
+                });
             }
-          
-          
         });
-        app.get("/api/monthlyLimit",async(req,res)=>{
-            const query={}
-            const results = await monthlyLimitCollection.find(query).toArray();
-            res.send(results)
 
-        })
-        //create tasks:-
+        app.get("/api/monthlyLimit", async (req, res) => {
+            try {
+                // Fetch the first document from the collection
+                const existingData = await monthlyLimitCollection.findOne({});
+        
+                if (existingData) {
+                    // console.log("Raw data from DB:", existingData);  
+                    
+                   
+                    let monthlyLimit = parseFloat(existingData.monthlyLimit);
+                    let value = parseFloat(existingData.value);
+        
+                    // Check if the `monthlyLimit` or `value` are invalid (NaN)
+                    if (isNaN(monthlyLimit)) {
+                        console.log("Invalid monthlyLimit:", existingData.monthlyLimit);
+                        monthlyLimit = 0;  
+                    }
+                    if (isNaN(value)) {
+                        // console.log("Invalid value:", existingData.value);
+                        value = 0;  
+                    }
+        
+                    
+                    res.status(200).send({
+                        _id: existingData._id,
+                        monthlyLimit: monthlyLimit,
+                        value: value
+                    });
+                } else {
+                    // If no data is found
+                    res.status(404).send({ message: "No monthly limit data found." });
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                res.status(500).send({ error: "An error occurred while fetching the data." });
+            }
+        });
+        
+
+        //create expenses:-
 
         app.post('/api/tasks', async (req, res) => {
             const task = req.body;
-            console.log(task);
+            // console.log(task);
 
             const result = await expanseCollection.insertOne(task);
             res.status(200).send({
@@ -112,19 +165,19 @@ async function run() {
                 for (const date in data) {
                     const records = data[date].records;
                     records.forEach(record => {
-                        totalExpenses += parseFloat(record.value); 
+                        totalExpenses += parseFloat(record.value);
                     });
                 }
 
                 return totalExpenses;
             };
 
-           
-            
+
+
             const groupedExpenses = groupByDate(results);
-             // Run the Calculation
+            // Run the Calculation
             const total = calculateTotalExpenses(groupedExpenses);
-            console.log("Total Expenses:", total);
+            // console.log("Total Expenses:", total);
             res.send(groupedExpenses);
 
         });
@@ -171,10 +224,11 @@ async function run() {
 
         //create category and set it's limit
         app.post('/api/category', async (req, res) => {
-            const category = req.body;
-            console.log(category);
+            const { limit, category } = req.body;
+            const newcatgory={limit,category}
+            console.log(newcatgory);
 
-            const result = await categoryCollection.insertOne(category);
+            const result = await categoryCollection.insertOne(newcatgory);
             res.status(200).send({
                 success: "successfully created a category !"
             })
