@@ -82,7 +82,7 @@ async function run() {
                 const existingData = await monthlyLimitCollection.findOne({});
 
                 if (existingData) {
-                    // console.log("Raw data from DB:", existingData);  
+                    
 
 
                     let monthlyLimit = parseFloat(existingData.monthlyLimit);
@@ -94,7 +94,7 @@ async function run() {
                         monthlyLimit = 0;
                     }
                     if (isNaN(value)) {
-                        // console.log("Invalid value:", existingData.value);
+                       
                         value = 0;
                     }
 
@@ -119,7 +119,7 @@ async function run() {
 
         app.post('/api/tasks', async (req, res) => {
             const task = req.body;
-            // console.log(task);
+          
 
             const result = await expanseCollection.insertOne(task);
             res.status(200).send({
@@ -177,16 +177,16 @@ async function run() {
             const groupedExpenses = groupByDate(results);
             // Run the Calculation
             const total = calculateTotalExpenses(groupedExpenses);
-            // console.log("Total Expenses:", total);
+       
             res.send(groupedExpenses);
 
         });
         app.get("/api/queryByCategory", async (req, res) => {
-            const query = {};
+            const query = {}
             const results = await expanseCollection.find(query).toArray()
             res.send(results)
         })
-        //tasks delete:-
+        //tasks delete:
 
         app.delete('/api/expense/:id',async(req,res)=> {
             const id = req.params.id
