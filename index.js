@@ -41,7 +41,7 @@ async function run() {
             const newMonthlyLimit = parseFloat(monthlyLimit);
 
             if (isNaN(newMonthlyLimit)) {
-                return res.status(400).send({ error: "Invalid monthly limit value. Please provide a valid number." });
+                return res.status(400).send({ error: "Invalid monthly limit valuer." })
             }
 
             // Find the existing data
@@ -52,7 +52,7 @@ async function run() {
                 const existingLimit = parseFloat(existingData.monthlyLimit || 0);
 
                 if (isNaN(existingLimit)) {
-                    return res.status(400).send({ error: "Stored monthly limit value is not a valid number." });
+                    return res.status(400).send({ error: "Stored monthly limit value is not a valid number." })
                 }
 
                 const updatedMonthlyLimit = existingLimit + newMonthlyLimit;
